@@ -14,7 +14,7 @@ pub async fn spawn_app(email_client: Option<MockEmailClient>) -> TestApp {
         settings
     };
 
-    let email_client: MockEmailClient = email_client.unwrap_or(MockEmailClient::new());
+    let email_client: MockEmailClient = email_client.unwrap_or(default_email_client_mock());
 
     let application = Application::build(settings.clone(), Some(Box::new(email_client)))
         .await
@@ -28,4 +28,12 @@ pub async fn spawn_app(email_client: Option<MockEmailClient>) -> TestApp {
     let _ = tokio::spawn(application.run_until_stopped());
 
     TestApp { address: address }
+}
+
+fn default_email_client_mock() -> MockEmailClient {
+    let mut email_client_mock = MockEmailClient::new();
+    email_client_mock
+        .expect_send_email()
+        .returning(|_, _, _| Ok(()));
+    email_client_mock
 }

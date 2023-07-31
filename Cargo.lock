@@ -76,6 +76,7 @@ dependencies = [
  "env_logger",
  "log",
  "mockall",
+ "once_cell",
  "reqwest",
  "tokio",
  "tracing",

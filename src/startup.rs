@@ -5,10 +5,11 @@ use actix_web::{
     App, HttpServer,
 };
 use env_logger::Env;
+use once_cell::sync::Lazy;
 use std::{io::Error, net::TcpListener};
 
 use crate::{
-    settings::Settings, email::email_test, email_client::EmailClient, smtp_client::SmtpClient,
+    email::email_test, email_client::EmailClient, settings::Settings, smtp_client::SmtpClient,
 };
 
 pub struct Application {
@@ -50,11 +51,17 @@ impl Application {
     }
 }
 
+// Ensure the environment logger is only initialized once using `once_cell`
+// This is needed when running multiple integration tests
+static LOGGING: Lazy<()> = Lazy::new(|| {
+    env_logger::init_from_env(Env::default().default_filter_or("trace"));
+});
+
 pub fn run(
     listener: TcpListener,
     email_client: Box<dyn EmailClient>,
 ) -> Result<Server, std::io::Error> {
-    env_logger::init_from_env(Env::default().default_filter_or("trace"));
+    Lazy::force(&LOGGING);
 
     let email_client = Data::new(email_client);
     let server = HttpServer::new(move || {

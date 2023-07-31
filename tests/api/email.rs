@@ -15,6 +15,24 @@ async fn email_should_send_an_email() {
     let client = reqwest::Client::new();
 
     // Act
+    let _ = client
+        .get(format!("{}/email", &app.address))
+        .send()
+        .await
+        .expect("Failed to execute request.");
+
+    // Assert
+    // The mock will panic automatically if 'send_email' wasn't called or called more than once
+}
+
+#[tokio::test]
+async fn email_should_respond_with_success() {
+    // Arrange
+    // We don't need the mock here so we let 'spawn_app' create a default one for us
+    let app = spawn_app(None).await;
+    let client = reqwest::Client::new();
+
+    // Act
     let response = client
         .get(format!("{}/email", &app.address))
         .send()
